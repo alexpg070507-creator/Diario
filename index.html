@@ -373,6 +373,14 @@ INSTRUCCIÓN PARA EL USUARIO:
 
 La imagen de referencia será subida manualmente en Gemini u otra herramienta de generación de imágenes después de pegar este texto.
 
+⚠️ FIDELIDAD DE LA FOTO ORIGINAL (MUY IMPORTANTE):
+
+- Mantén la composición, la posición de cada elemento y la identidad de las personas exactamente igual que en la imagen original
+
+- Si aparecen personas, preserva su rostro y rasgos faciales exactamente reconocibles: deben verse como las mismas personas de la foto original
+
+- El cambio debe notarse en el estilo, la luz, el color y el tratamiento artístico, nunca en quién aparece ni en la composición de la escena
+
 OBJETIVO:
 
 - Usar la imagen adjunta como referencia principal
@@ -444,6 +452,14 @@ INSTRUCCIÓN PARA EL USUARIO:
 
 La imagen será subida manualmente en Gemini u otra herramienta después de pegar este texto.
 
+⚠️ FIDELIDAD DE LA FOTO ORIGINAL (MUY IMPORTANTE):
+
+- Aplica únicamente el cambio pedido en la instrucción de edición. Mantén todo lo demás de la imagen exactamente igual: estilo, iluminación, composición y encuadre originales
+
+- Preserva el rostro, la identidad y los rasgos faciales de cada persona exactamente como aparecen en la foto original
+
+- No reinterpretes el estilo general de la foto ni cambies nada que no se haya pedido explícitamente
+
 OBJETIVO:
 
 - Mejorar o modificar la imagen original según la instrucción del usuario
@@ -504,6 +520,14 @@ Transformar la imagen original en una versión mejorada, más estética, serena 
 INSTRUCCIÓN PARA EL USUARIO:
 
 La imagen será subida manualmente en Gemini u otra herramienta después de pegar este texto.
+
+⚠️ FIDELIDAD DE LA FOTO ORIGINAL (MUY IMPORTANTE):
+
+- El único cambio permitido en la imagen es añadir el texto solicitado. Mantén todo lo demás exactamente igual: estilo, iluminación, composición y encuadre originales
+
+- Preserva el rostro, la identidad y los rasgos faciales de cada persona exactamente como aparecen en la foto original
+
+- No reinterpretes el estilo general de la foto ni cambies nada más que no sea el texto pedido
 
 El usuario escribirá una o varias instrucciones de texto y su posición deseada dentro de la imagen en un solo bloque.
 
@@ -826,8 +850,9 @@ function renderForm(id, pushState) {
   if (!prompt) { renderHome(); return; }
   if (pushState !== false) history.pushState({ screen: "form", id }, "", "#" + id);
 
-  currentValues = {};
   const fields = extractFields(prompt.template);
+  currentValues = {};
+  fields.forEach(f => { currentValues[f.placeholder] = ""; });
 
   app.innerHTML = `
     <div class="screen">
