@@ -446,7 +446,7 @@ Crear una versión reinterpretada, más estética, serena y armoniosa de la imag
     title: "Editar una foto",
     emoji: "✏️",
     needsPhotoNote: true,
-    template: `Edita la imagen proporcionada por el usuario siguiendo las instrucciones indicadas.
+    template: `Genera una nueva versión de la imagen proporcionada por el usuario, en la que ya esté aplicado el cambio indicado más abajo — como si fuera la misma fotografía, pero ya con ese cambio hecho.
 
 INSTRUCCIÓN PARA EL USUARIO:
 
@@ -454,7 +454,7 @@ La imagen será subida manualmente en Gemini u otra herramienta después de pega
 
 ⚠️ FIDELIDAD DE LA FOTO ORIGINAL (MUY IMPORTANTE):
 
-- Aplica únicamente el cambio pedido en la instrucción de edición. Mantén todo lo demás de la imagen exactamente igual: estilo, iluminación, composición y encuadre originales
+- Aplica únicamente el cambio pedido. Mantén todo lo demás de la imagen exactamente igual: estilo, iluminación, composición y encuadre originales
 
 - Preserva el rostro, la identidad y los rasgos faciales de cada persona exactamente como aparecen en la foto original
 
@@ -462,13 +462,13 @@ La imagen será subida manualmente en Gemini u otra herramienta después de pega
 
 OBJETIVO:
 
-- Mejorar o modificar la imagen original según la instrucción del usuario
+- Generar una nueva versión de la imagen que incluya el cambio pedido por el usuario
 
 - Mantener la estructura general de la imagen siempre que sea posible
 
 - Hacer la imagen más estética, armoniosa y agradable visualmente
 
-INSTRUCCIÓN DE EDICIÓN:
+CAMBIO A APLICAR:
 
 "{PEGAR_INSTRUCCIÓN_DE_EDICIÓN_AQUÍ}"
 
@@ -508,14 +508,14 @@ REGLAS IMPORTANTES:
 
 OBJETIVO FINAL:
 
-Transformar la imagen original en una versión mejorada, más estética, serena y armoniosa, respetando su esencia.`
+Generar una versión de la imagen original con el cambio ya incluido, más estética, serena y armoniosa, respetando su esencia.`
   },
   {
     id: "anadir_texto",
     title: "Añadir texto a una foto",
     emoji: "📝",
     needsPhotoNote: true,
-    template: `Añade texto a la imagen proporcionada por el usuario, respetando tanto las instrucciones del usuario como la composición visual original.
+    template: `Genera una nueva versión de la imagen proporcionada por el usuario, en la que ya aparezca el texto indicado más abajo, integrado en la composición visual original — como si fuera la misma fotografía, pero ya con ese texto incluido.
 
 INSTRUCCIÓN PARA EL USUARIO:
 
@@ -809,6 +809,10 @@ function openGemini() {
   window.open("https://gemini.google.com/", "_blank", "noopener");
 }
 
+function openChatGPT() {
+  window.open("https://chatgpt.com/", "_blank", "noopener");
+}
+
 let toastTimer = null;
 function showToast(msg) {
   const toast = document.getElementById("toast");
@@ -871,13 +875,14 @@ function renderForm(id, pushState) {
       ${prompt.needsPhotoNote ? `
         <div class="note-card">
           <span>📎</span>
-          <span>Después de pegar este texto en Gemini, toca el clip para añadir tu foto, antes de enviar.</span>
+          <span>Después de pegar este texto en Gemini o ChatGPT, adjunta tu foto antes de enviar.</span>
         </div>
       ` : ""}
 
       <div class="actions">
         <button class="action-button primary" type="button" id="copyBtn">📋 Copiar prompt</button>
         <button class="action-button primary" type="button" id="copyOpenBtn">📋➡️ Copiar y abrir Gemini</button>
+        <button class="action-button primary" type="button" id="copyOpenChatGptBtn">📋➡️ Copiar y abrir ChatGPT</button>
         <button class="action-button secondary" type="button" id="backBottom">← Volver</button>
       </div>
     </div>
@@ -901,6 +906,12 @@ function renderForm(id, pushState) {
     const text = fillTemplate(prompt.template, currentValues);
     await copyText(text);
     openGemini();
+  });
+
+  document.getElementById("copyOpenChatGptBtn").addEventListener("click", async () => {
+    const text = fillTemplate(prompt.template, currentValues);
+    await copyText(text);
+    openChatGPT();
   });
 }
 

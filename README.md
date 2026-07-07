@@ -2,6 +2,8 @@
 
 App de una sola página (sin instalar nada) para generar y copiar los 6 prompts.
 Funciona en cualquier móvil (Android o iPhone) directamente desde el navegador.
+Cada prompt tiene botón para copiar y abrir directamente **Gemini o ChatGPT**,
+para poder probar cuál da mejor resultado con cada foto.
 
 ## Qué hay en esta carpeta
 
