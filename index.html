@@ -374,6 +374,8 @@ REGLAS IMPORTANTES:
 
 - Priorizar siempre claridad visual, serenidad y equilibrio
 
+{NOTA_ADICIONAL}
+
 OBJETIVO FINAL:
 
 Crear una única fotografía natural y realista de un paisaje sereno, a pantalla completa, con la oración escrita directamente encima de esa misma foto — NUNCA dos zonas separadas (foto por un lado, texto sobre fondo liso por otro). Debe transmitir paz, respeto y belleza visual, como una foto real, nunca como una tarjeta, postal o ilustración dividida en paneles.`
@@ -453,6 +455,8 @@ REGLAS IMPORTANTES:
 
 - Evitar sobrecarga visual o exceso de elementos decorativos
 
+{NOTA_ADICIONAL}
+
 OBJETIVO FINAL:
 
 Crear una versión reinterpretada, más estética, serena y armoniosa de la imagen original, respetando completamente el texto existente y manteniendo su esencia visual.`
@@ -521,6 +525,8 @@ REGLAS IMPORTANTES:
 - Evitar sobrecarga visual o exceso de elementos decorativos
 
 - Priorizar siempre un resultado natural, elegante y coherente
+
+{NOTA_ADICIONAL}
 
 OBJETIVO FINAL:
 
@@ -605,6 +611,8 @@ REGLAS IMPORTANTES:
 
 - No añadir texto adicional que no haya sido pedido por el usuario
 
+{NOTA_ADICIONAL}
+
 OBJETIVO FINAL:
 
 Integrar los textos solicitados en la imagen de forma natural, respetando las instrucciones del usuario y la estética general, creando una composición equilibrada, elegante y coherente.`
@@ -614,7 +622,7 @@ Integrar los textos solicitados en la imagen de forma natural, respetando las in
     title: "Versículo del día",
     emoji: "📖",
     needsPhotoNote: false,
-    template: `Selecciona un versículo bíblico real y correcto de la Biblia (Reina-Valera u otra versión estándar ampliamente reconocida) de forma aleatoria.
+    template: `Selecciona un versículo bíblico real y correcto de la Biblia, EN ESPAÑOL (Reina-Valera u otra versión estándar ampliamente reconocida en español) de forma aleatoria.
 
 ⚠️ REGLA CRÍTICA:
 
@@ -623,6 +631,8 @@ Integrar los textos solicitados en la imagen de forma natural, respetando las in
 - No inventar, no parafrasear, no modificar el texto bíblico.
 
 - Si no estás seguro de un versículo, elige otro que conozcas con total certeza.
+
+- TODO el contenido debe estar en ESPAÑOL: el versículo (en una versión bíblica en español, como Reina-Valera) y la reflexión. Nunca generes nada en inglés ni en ningún otro idioma, sin excepción.
 
 ÚNICA EXCEPCIÓN PERMITIDA:
 
@@ -636,15 +646,17 @@ A partir del versículo seleccionado:
 
 2) Crear una breve reflexión o aprendizaje basado en ese versículo (2-3 frases)
 
-CONTENIDO A GENERAR:
+CONTENIDO A GENERAR (TODO EN ESPAÑOL):
 
 VERSÍCULO:
 
-- Debe aparecer exactamente como en la Biblia
+- Debe aparecer exactamente como en la Biblia, en español (Reina-Valera u otra versión española reconocida)
 
 - Sin cambios de texto
 
 REFLEXIÓN:
+
+- Escrita en español
 
 - 2 o 3 frases
 
@@ -687,6 +699,8 @@ REGLAS IMPORTANTES:
 - Evitar sobrecargar la composición visual
 
 - Priorizar siempre serenidad y estética espiritual
+
+{NOTA_ADICIONAL}
 
 OBJETIVO FINAL:
 
@@ -777,31 +791,76 @@ Crear una imagen nueva fiel a la idea del usuario, respetando sus instrucciones 
 // duplicados, con etiqueta amigable en español.
 // ──────────────────────────────────────────────────────────
 const FRIENDLY_LABELS = {
-  "PEGAR_ORACIÓN_AQUÍ": "Escribe tu oración o frase",
-  "PEGAR_INSTRUCCIÓN_DE_EDICIÓN_AQUÍ": "¿Qué quieres cambiar en la foto?",
-  "PEGAR_TEXTO_Y_POSICIONES_AQUÍ": "¿Qué texto quieres añadir y dónde?",
-  "PEGAR_DESCRIPCIÓN_DE_IMAGEN_AQUÍ": "Describe la imagen que quieres crear"
+  "PEGAR_ORACIÓN_AQUÍ": "Escribe tu oración: con este texto se creará tu imagen",
+  "PEGAR_INSTRUCCIÓN_DE_EDICIÓN_AQUÍ": "Cuéntame qué quieres cambiar en tu foto",
+  "PEGAR_TEXTO_Y_POSICIONES_AQUÍ": "Escribe el texto que quieres añadir, y en qué parte de la foto",
+  "PEGAR_DESCRIPCIÓN_DE_IMAGEN_AQUÍ": "Describe la imagen que quieres crear, con el detalle que quieras",
+  "NOTA_ADICIONAL": "Notas adicionales (opcional)"
 };
 
-function extractFields(template) {
+// Texto de ejemplo (placeholder HTML) — organizado POR PROMPT, no solo por
+// nombre de campo, porque "Notas adicionales" es el mismo campo en 5 prompts
+// distintos pero el ejemplo útil no es el mismo en cada uno.
+const FIELD_HINTS = {
+  oracion: {
+    "PEGAR_ORACIÓN_AQUÍ": "Ej: Señor, gracias por este nuevo día",
+    "NOTA_ADICIONAL": "Ej: que salgan animales, un paisaje de montaña…"
+  },
+  recrear: {
+    "NOTA_ADICIONAL": "Ej: quitar la marca de agua, aclarar los colores…"
+  },
+  editar: {
+    "PEGAR_INSTRUCCIÓN_DE_EDICIÓN_AQUÍ": "Ej: quitar las gafas, aclarar el fondo",
+    "NOTA_ADICIONAL": "Ej: que el cielo esté despejado, más luz cálida…"
+  },
+  anadir_texto: {
+    "PEGAR_TEXTO_Y_POSICIONES_AQUÍ": "Ej: Feliz cumpleaños arriba, con cariño abajo",
+    "NOTA_ADICIONAL": "Ej: quitar la marca de agua, letra más grande…"
+  },
+  versiculo: {
+    "NOTA_ADICIONAL": "Ej: que sea un versículo sobre la esperanza…"
+  },
+  imagen_nueva: {
+    "PEGAR_DESCRIPCIÓN_DE_IMAGEN_AQUÍ": "Ej: un jardín con rosas al atardecer"
+  }
+};
+
+function extractFields(template, promptId) {
   const regex = /\{([^{}]+)\}/g;
   const seen = new Set();
   const fields = [];
   let match;
+  const hintsForPrompt = FIELD_HINTS[promptId] || {};
   while ((match = regex.exec(template)) !== null) {
     const key = match[1];
     if (!seen.has(key)) {
       seen.add(key);
-      fields.push({ placeholder: key, label: FRIENDLY_LABELS[key] || "Escribe aquí" });
+      fields.push({
+        placeholder: key,
+        label: FRIENDLY_LABELS[key] || "Escribe aquí",
+        hint: hintsForPrompt[key] || ""
+      });
     }
   }
   return fields;
 }
 
+/**
+ * Construye el bloque de "nota adicional" a partir de lo que escriba la persona.
+ * Si está vacío, devuelve "" para que desaparezca por completo (encabezado incluido),
+ * en vez de dejar una sección con el título puesto y nada debajo.
+ */
+function buildNotaAdicional(value) {
+  const texto = (value || "").trim();
+  if (!texto) return "";
+  return `NOTA ADICIONAL DEL USUARIO:\n\nTambién quiero que: ${texto}\n`;
+}
+
 function fillTemplate(template, values) {
   let result = template;
   Object.keys(values).forEach((key) => {
-    result = result.split("{" + key + "}").join(values[key] || "");
+    const replacement = key === "NOTA_ADICIONAL" ? buildNotaAdicional(values[key]) : (values[key] || "");
+    result = result.split("{" + key + "}").join(replacement);
   });
   return result;
 }
@@ -880,7 +939,7 @@ function renderForm(id, pushState) {
   if (!prompt) { renderHome(); return; }
   if (pushState !== false) history.pushState({ screen: "form", id }, "", "#" + id);
 
-  const fields = extractFields(prompt.template);
+  const fields = extractFields(prompt.template, prompt.id);
   currentValues = {};
   fields.forEach(f => { currentValues[f.placeholder] = ""; });
 
@@ -894,7 +953,7 @@ function renderForm(id, pushState) {
       ${fields.map(f => `
         <div class="field">
           <label for="f-${f.placeholder}">${f.label}</label>
-          <textarea id="f-${f.placeholder}" data-key="${f.placeholder}" rows="3"></textarea>
+          <textarea id="f-${f.placeholder}" data-key="${f.placeholder}" rows="3" placeholder="${f.hint || ""}"></textarea>
         </div>
       `).join("")}
 
