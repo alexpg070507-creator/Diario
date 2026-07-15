@@ -129,6 +129,32 @@
     color:var(--ink);
   }
 
+  .home-top-row{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .home-top-row .screen-title{ flex:1; }
+  .help-link{
+    flex-shrink:0;
+    white-space:nowrap;
+    font-size:0.9375rem;
+  }
+
+  .help-steps{
+    margin:0 0 22px;
+    padding-left:1.4em;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .help-steps li{
+    font-size:1.0625rem;
+    line-height:1.5;
+    color:var(--ink);
+  }
+
   .button-list{
     display:flex;
     flex-direction:column;
@@ -346,7 +372,7 @@
 
   <main id="app"></main>
 
-  <footer class="credit">Toca un botón, rellena si hace falta, copia y pega en Gemini o ChatGPT. <span class="version">v8</span></footer>
+  <footer class="credit">Toca un botón, rellena si hace falta, copia y pega en Gemini o ChatGPT. <span class="version">v9</span></footer>
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -997,7 +1023,10 @@ function renderHome(pushState) {
   currentValues = {};
   app.innerHTML = `
     <div class="screen">
-      <h2 class="screen-title">¿Qué imagen quieres crear hoy?</h2>
+      <div class="home-top-row">
+        <h2 class="screen-title">¿Qué imagen quieres crear hoy?</h2>
+        <button class="link-back help-link" type="button" id="helpLink">❓ Cómo se usa</button>
+      </div>
       ${lastCopied ? `
         <button class="prompt-button recopy-button" type="button" id="recopyBtn">
           <span class="emoji">🔁</span>
@@ -1017,6 +1046,7 @@ function renderHome(pushState) {
   app.querySelectorAll(".prompt-button[data-id]").forEach(btn => {
     btn.addEventListener("click", () => renderForm(btn.dataset.id));
   });
+  document.getElementById("helpLink").addEventListener("click", () => renderHelp());
   const recopyBtn = document.getElementById("recopyBtn");
   if (recopyBtn) {
     recopyBtn.addEventListener("click", async () => {
@@ -1025,6 +1055,39 @@ function renderHome(pushState) {
       if (!ok) showManualCopyFallback(lastCopied.text);
     });
   }
+}
+
+function renderHelp(pushState) {
+  if (pushState !== false) history.pushState({ screen: "help" }, "", "#ayuda");
+  app.innerHTML = `
+    <div class="screen">
+      <div class="back-row">
+        <button class="link-back" type="button" id="backTop">← Volver</button>
+      </div>
+      <h2 class="screen-title">❓ Cómo se usa esta app</h2>
+
+      <ol class="help-steps">
+        <li><strong>Toca uno de los botones</strong> de la pantalla de inicio, según el tipo de imagen que quieras.</li>
+        <li>Si te pide que <strong>escribas algo</strong>, hazlo en el recuadro. El de "Notas adicionales" es opcional, puedes dejarlo vacío.</li>
+        <li>Si en la pantalla aparece el aviso 📎, significa que <strong>tendrás que adjuntar una foto</strong> tú misma, un poco más adelante en Gemini o ChatGPT.</li>
+        <li>Toca <strong>"Copiar y abrir Gemini"</strong> o <strong>"Copiar y abrir ChatGPT"</strong> — se copia el texto solo y se abre la app.</li>
+        <li>Dentro de Gemini o ChatGPT, mantén el dedo sobre el cuadro donde se escribe y elige <strong>"Pegar"</strong>. Si hacía falta una foto, tócala para añadirla ahí también.</li>
+        <li>Pulsa enviar, y espera unos segundos a que aparezca tu imagen.</li>
+      </ol>
+
+      <div class="note-card">
+        <span>💡</span>
+        <span>Si generaste algo y necesitas copiarlo otra vez, vuelve al inicio: ahí aparece un botón para volver a copiar lo último, sin tener que rellenar nada de nuevo.</span>
+      </div>
+
+      <div class="actions">
+        <button class="action-button secondary" type="button" id="backBottomHelp">← Volver al inicio</button>
+      </div>
+    </div>
+  `;
+  const goBack = () => history.back();
+  document.getElementById("backTop").addEventListener("click", goBack);
+  document.getElementById("backBottomHelp").addEventListener("click", goBack);
 }
 
 function renderForm(id, pushState) {
@@ -1108,6 +1171,8 @@ window.addEventListener("popstate", (e) => {
   const state = e.state;
   if (state && state.screen === "form") {
     renderForm(state.id, false);
+  } else if (state && state.screen === "help") {
+    renderHelp(false);
   } else {
     renderHome(false);
   }

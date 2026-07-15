@@ -8,7 +8,7 @@
 // servidor y se actualiza la caché; la copia guardada solo se usa como
 // último recurso, cuando no hay conexión en absoluto.
 
-const CACHE_NAME = "oraciones-cache-v7";
+const CACHE_NAME = "oraciones-cache-v9";
 const CORE_FILES = [
   "./",
   "./index.html",

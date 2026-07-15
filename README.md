@@ -50,6 +50,8 @@ como una app, aunque por dentro sea una página web.
 ## Funciones que tiene la app
 
 - 6 tipos de prompt, con campos que aparecen solos según cada uno
+- Pantalla de ayuda ("❓ Cómo se usa"), accesible desde el inicio — explica el
+  flujo completo paso a paso, útil si algún día usas la app sin que estés tú delante
 - Botón de notas adicionales (opcional) en 4 de los 6, para pedir cosas que no
   encajan en el campo principal
 - Copiar y abrir Gemini o ChatGPT, para poder comparar
